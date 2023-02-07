@@ -25,7 +25,7 @@ def rate_my_attacked_icebergs(attacked_icebergs, game):
             if iceberg_rating > 20:
                 icebergs_to_be_defended.append(icebergs_to_be_defended)
                 
- def rate_for_upgrade(iceberg, game):
+ def rate_for_upgrade(game):
     
     //returns the best iceberg to upgrade
     
