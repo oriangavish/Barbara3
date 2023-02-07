@@ -1,18 +1,18 @@
 from penguin_game import *
 
 
-def send_able(self, iceberg, penguin_group):
-    if iceberg.get_turns_till_arrival() < penguin_group.turns_till_arrival:
+def send_able(from_iceberg, to_iceberg, penguin_group):
+    if to_iceberg.get_turns_till_arrival() < penguin_group.turns_till_arrival:
         amount_needed = penguin_group.penguin_amount - (
-                    self.penguin_amount + penguins_per_turn * penguin_group.turns_till_arrival)
-        if amount_needed < iceberg.penguin_amount:
-            iceberg.send_help(amount_needed)
+                from_iceberg.penguin_amount + from_iceberg.penguins_per_turn * penguin_group.turns_till_arrival)
+        if amount_needed < to_iceberg.penguin_amount:
+            to_iceberg.send_help(amount_needed)
         else:
             return False
     else:
-        amount_needed = penguin_group.penguin_amount - self.penguin_amount + penguins_per_turn * (
-                    iceberg.get_turns_till_arrival() - penguin_group.turns_till_arrival)
-        if amount_needed < iceberg.penguin_amount:
-            iceberg.send_help(amount_needed)
+        amount_needed = penguin_group.penguin_amount - from_iceberg.penguin_amount + from_iceberg.penguins_per_turn * (
+                to_iceberg.get_turns_till_arrival() - penguin_group.turns_till_arrival)
+        if amount_needed < to_iceberg.penguin_amount:
+            to_iceberg.send_help(amount_needed)
             return True
         return False
