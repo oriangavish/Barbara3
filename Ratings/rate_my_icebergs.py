@@ -39,9 +39,9 @@ def rate_my_attacked_icebergs(attacked_icebergs, game):
     //prioritizes upgrading the closest icebergs to our capital or to enemy capital with the least per_turn first
     //lower score = upgrade first
     
-        if(distance_from_home < distance_from_enemy)
+        if(distance_from_home < distance_from_enemy):
             rating = distance_from_home + per_turn
-        else
+        else:
             rating = distance_from_enemy + per_turn
         icebergs_to_update.append(rating)
      icebergs_to_update.sort()
@@ -51,9 +51,9 @@ def rate_my_attacked_icebergs(attacked_icebergs, game):
         distance_from_home = iceberg.get_turns_till_arrival(game.get_my_icepital_icebergs[0])
         distance_from_enemy = iceberg.get_turns_till_arrival(game.get_enemy_icepital_icebergs[0])
         per_turn = iceberg.penguins_per_turn
-        if(distance_from_home < distance_from_enemy)
+        if(distance_from_home < distance_from_enemy):
             rating = distance_from_home + per_turn
-        else
+        else:
             rating = distance_from_enemy + per_turn
             
         if rating == icebergs_to_update[i]:
