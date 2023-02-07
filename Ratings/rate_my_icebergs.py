@@ -59,4 +59,4 @@ def rate_my_attacked_icebergs(attacked_icebergs, game):
         if rating == icebergs_to_update[i]:
             return iceberg
         i++
-    return null
+    return NULL
