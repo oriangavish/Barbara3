@@ -14,7 +14,7 @@ def who_should_attack(game, attack_iceberg):
     for iceberg in icebergs:
         distance = calculateDistance(iceberg, attack_iceberg)
         distances.append(distance)
-        icebergs_by_distance.append((distance, iceberg))
+        icebergs_by_distance.append([distance, iceberg])
     icebergs_by_distance.sort()
     for iceberg in icebergs_by_distance:
         distance = iceberg[0]
