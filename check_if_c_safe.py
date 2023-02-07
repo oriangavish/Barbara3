@@ -1,8 +1,7 @@
 from penguin_game import *
 
 # Checks for each group of enemy penguins if 1) They are attacking the Icepital, 2) If the number of penguins in the group is less than the number of penguins currently on the iceberg + the amount of penguins that will be added by the time they arrive + 1
-def check_if_C_safe(game):
-    enemy_groups = game.get_enemy_penguin_groups()
+def check_if_C_safe(self, enemy_groups):
     for enemy_group in enemy_groups:
         if enemy_group.destination.is_icepital == True:
             target = enemy_group.destination
