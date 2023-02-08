@@ -2,14 +2,20 @@ from penguin_game import *
 
 
 def rate_iceberg(iceberg, game):
+    # Calculates distances from home base and enemy base
     distance_from_home = iceberg.get_turns_till_arrival(game.get_my_icepital_icebergs[0])
     distance_from_enemy = iceberg.get_turns_till_arrival(game.get_enemy_icepital_icebergs[0])
     per_turn = iceberg.penguins_per_turn
 
+    # the closer the iceberg to our base or theirs, the higher the rating.
+    # Distance from our base is more important for defense so will contribute more to rating.
+    # Plus take into consideration amount of penguins produced in that iceberg by turn.
     return 20 / distance_from_home + 10 / distance_from_enemy + per_turn
 
 
 def rate_my_attacked_icebergs(attacked_icebergs, game):
+    # Function checks if iceberg can defend itself. If not, it is rated and icebergs requiring defense will be added to
+    # a list of icebergs we should defend.
     icebergs_to_be_defended = []
     for iceberg in attacked_icebergs:
         attackers = 0

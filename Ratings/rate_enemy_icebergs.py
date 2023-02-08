@@ -8,6 +8,7 @@ def rate_iceberg(iceberg, game):
     per_turn = iceberg.penguins_per_turn
 
     # the closer the iceberg to our base or theirs, the higher the rating.
+    # Distance from enemy base is more important for defense so will contribute more to rating.
     # Plus take into consideration amount of penguins produced in that iceberg by turn.
     return 10 / distance_from_home + 20 / distance_from_enemy + per_turn
 
