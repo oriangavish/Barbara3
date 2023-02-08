@@ -2,6 +2,12 @@ from penguin_game import *
 
 
 def rate_enemy_C(game, sorted_friendlies, sorted_enemies):
+    # FRIENDLIES MEANS OUR ICEBERGS!
+    # The friendlies are sorted by their distance from enemy capital.
+    # The function looks forward five turns.
+    # If, in one of those iterations, an attacking force from our three closest icebergs (FRIENDLIES!) to that capital
+    # will be able to overpower the defense by the time of its arrival,
+    # the function will add the capital to the list of capitals that are vulnerable to be attacked.
     icepitals_to_attack = []
     for i in range(2, 5):
         for icepital in game.get_enemy_icepital_icebergs():
