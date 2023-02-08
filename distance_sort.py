@@ -15,7 +15,7 @@ def distance_sort_d(game, defended_iceberg):
     sorted_distances = all_distances.sort()
     sorted_icebergs = []
     for sorted_distance in sorted_distances:
-        sorted_icebergs.append(sorted_distance[0])
+        sorted_icebergs.append(sorted_distance[1])
     return sorted_icebergs
 
 # Function calculates the distance from the iceberg we want want to attack from to the various options that we can attack. Here, netural icebergs are negative numbers and enemy icebergs are positive numbers. Our icebergs are not included because we can't attack our own icebergs.
@@ -33,7 +33,7 @@ def distance_sort_a(game, iceberg_attack_from):
     sorted_distances = all_distances.sort()
     sorted_icebergs = []
     for sorted_distance in sorted_distances:
-        sorted_icebergs.append(sorted_distance[0])
+        sorted_icebergs.append(sorted_distance[1])
     return sorted_icebergs
 
         
