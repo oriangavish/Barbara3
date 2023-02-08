@@ -14,6 +14,7 @@ def rate_iceberg(iceberg, game):
     return 20 / distance_from_home + 10 / distance_from_enemy + per_turn
 
 
+# Sort by rating
 def rate_my_attacked_icebergs(attacked_icebergs, game):
     # Function checks if iceberg can defend itself. If not, it is rated and icebergs requiring defense will be added to
     # a list of icebergs we should defend.
