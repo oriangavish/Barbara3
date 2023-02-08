@@ -1,7 +1,10 @@
 from penguin_game import *
 from check_if_attacked_i import check_if_attacked_i
 
-# First checks to see if the iceberg is even being attacked. If yes, makes sure that it contains the proper amount of penguins on the iceberg to defend itself by the time the enemy group arrives.
+
+# First checks to see if the iceberg is even being attacked.
+# If yes, makes sure that it contains the proper
+# amount of penguins on the iceberg to defend itself by the time the enemy group arrives.
 def check_if_safe_I(game, iceberg):
     if check_if_attacked_i(iceberg, game) == False:
         return True
