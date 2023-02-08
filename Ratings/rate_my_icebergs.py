@@ -24,7 +24,12 @@ def rate_my_attacked_icebergs(attacked_icebergs, game):
         if not safe:
             iceberg_rating = rate_iceberg(iceberg, game)
             if iceberg_rating > 20:
-                icebergs_to_be_defended.append(icebergs_to_be_defended)
+                icebergs_to_be_defended.append([iceberg_rating, icebergs_to_be_defended])
+    sorted_distances = icebergs_to_be_defended.sort()
+    sorted_icebergs_to_be_defended = []
+    for sorted_distance in sorted_distances:
+        sorted_icebergs_to_be_defended.append(sorted_distance[1])
+    return sorted_icebergs_to_be_defended
 
 
 def rate_for_upgrade(game):

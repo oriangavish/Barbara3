@@ -31,7 +31,7 @@ def distance_sort_a(game, iceberg_attack_from):
     all_icebergs.remove(iceberg_attack_from)
     for iceberg in all_icebergs:
         distance = iceberg.get_turns_till_arrival(iceberg_attack_from)
-        if iceberg in game.get_all_enemy_icebergs:
+        if iceberg in game.get_enemy_icebergs:
             all_distances.append([distance, iceberg])
         if iceberg in game.get_netural_icebergs:
             distance *= -1
@@ -45,4 +45,15 @@ def distance_sort_a(game, iceberg_attack_from):
 
 # Returns list of enemy icebergs sorted from closest to farthest from enemy capital.
 def sort_enemy_icebergs_by_distance_from_enemy_capital(game):
-    return
+    all_distances = []
+    enemy_icepital = game.get_enemy_icepitals[0]
+    all_enemy_icebergs = game.get_enemy_icebergs
+    all_enemy_icebergs.remove(enemy_icepital)
+    for iceberg in all_enemy_icebergs:
+        distance = iceberg.get_turns_till_arrival(enemy_icepital)
+        all_distances.append([distance, iceberg])
+    sorted_distances = all_distances.sort()
+    sorted_icebergs = []
+    for sorted_distance in sorted_distances:
+        sorted_icebergs.append(sorted_distance[1])
+    return sorted_icebergs
