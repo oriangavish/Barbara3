@@ -1,8 +1,10 @@
 from penguin_game import *
-from who_should_attack import who_should_attack
+from who_should_attack import *
+
 
 # Function that sends the attack after it is already decided which iceberg to attack
-def attack(game, attack_iceberg):
+
+def attack_iceberg(game, attack_iceberg):
    attacking_icebergs = who_should_attack(game, attack_iceberg)
    if attacking_icebergs is None:
        return False
@@ -19,6 +21,14 @@ def attack(game, attack_iceberg):
        if iceberg.can_send_penguins(attacking_icebergs, number_attack_iceberg):
            iceberg.send_penguins(attacking_icebergs, number_attack_iceberg)
        return True
+
+def attack_capital(game):
+    attacking_icebergs = who_should_attack_capital(game)
+    for iceberg in attacking_icebergs:
+        number_attack_iceberg = send_number(iceberg, game.get_enemy_icebergs()[0])
+        if iceberg.can_send_penguins(attack_iceberg, number_attack_iceberg):
+            iceberg.send_penguins(attack_iceberg, number_attack_iceberg)
+
 
 # Again, we might want to add more penguins to the attack because they'll defend as well
 def send_number(iceberg, attack_iceberg):

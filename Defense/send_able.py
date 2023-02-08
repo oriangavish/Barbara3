@@ -1,7 +1,7 @@
 from penguin_game import *
 
 
-def send_able(from_iceberg, to_iceberg, penguin_group):
+def send_able_defense(from_iceberg, to_iceberg, penguin_group):
     if to_iceberg.get_turns_till_arrival() < penguin_group.turns_till_arrival:
         amount_needed = penguin_group.penguin_amount - (
                 from_iceberg.penguin_amount + from_iceberg.penguins_per_turn * penguin_group.turns_till_arrival)

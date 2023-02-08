@@ -7,7 +7,7 @@ def calculateDistance(my_iceberg, attack_iceberg):
 
 # We might want to make there need to be a certain
 # amount of penguins sent during the attack in case they defend their iceberg
-def who_should_attack(game, attack_iceberg):
+def who_should_attack_iceberg(game, attack_iceberg):
     icebergs = game.get_my_icebergs
     icebergs_by_distance = []
     distances = []
@@ -28,6 +28,9 @@ def who_should_attack(game, attack_iceberg):
                 return icebergs_to_attack
     return None
 
+# Function returns list of icebergs that should attack enemy capital
+def who_should_attack_capital(game):
+    return
 
 # If there are multiple icebergs in the same distances, we can send penguins from both at
 # the same time if it's not possible to send penguins from only one and still be able to attack the enemy iceberg

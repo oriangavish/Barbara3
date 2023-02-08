@@ -1,4 +1,5 @@
 from penguin_game import *
+from Defense.check_if_safe_I import *
 
 
 def rate_iceberg(iceberg, game):
@@ -18,15 +19,8 @@ def rate_my_attacked_icebergs(attacked_icebergs, game):
     # a list of icebergs we should defend.
     icebergs_to_be_defended = []
     for iceberg in attacked_icebergs:
-        attackers = 0
-        last_attacker_arrival = 0
-        for penguin_group in game.get_enemy_penguin_groups():
-            if penguin_group.destination == iceberg:
-                attackers += penguin_group.penguin_amount
-                if penguin_group.turns_till_arrival > last_attacker_arrival:
-                    last_attacker_arrival = penguin_group.turns_till_arrival
-
-        if attackers > iceberg.penguin_amount + last_attacker_arrival * iceberg.penguins_per_turn:
+        safe = check_if_safe_I(game, iceberg)
+        if not safe:
             iceberg_rating = rate_iceberg(iceberg, game)
             if iceberg_rating > 20:
                 icebergs_to_be_defended.append(icebergs_to_be_defended)
@@ -64,5 +58,5 @@ def rate_for_upgrade(game):
 
         if rating == icebergs_to_update[i]:
             return iceberg
-        i+=1
+        i += 1
     return None
