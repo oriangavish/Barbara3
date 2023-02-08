@@ -1,8 +1,6 @@
 from penguin_game import *
 from Defense.check_if_c_safe import check_if_c_safe
-# Currently the two functions below don't exist, but when it does, it needs to be included here
 from Defense.check_if_safe_I import check_if_safe_I
-from Defense.check_if_defended_I import check_if_defended_I
 
 # Checks if it is worth it to upgrade one of the icebergs. If this function returns true, than the rate_for_upgrade function should be run to decide which of the icebergs should be upgraded. Here, each enemy group is checked to see whether their target can be defended or not, and whether it's worth it to upgrade while we should be defending instead. 
 def should_upgrade(game):
@@ -16,7 +14,6 @@ def should_upgrade(game):
         if enemy_group.destination.is_icepital and check_if_c_safe(current_enemy_groups) == False:
             return False
         if enemy_group.destination in my_icebergs and check_if_safe_I(enemy_group_destination) == False:
-            if check_if_defended_I(enemy_group_destination) == False:
                 return False
         if enemy_group_destination in netural_icebergs:
             non_direct_enemy_groups.append(enemy_group)
