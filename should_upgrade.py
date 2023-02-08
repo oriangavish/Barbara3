@@ -23,7 +23,7 @@ def should_upgrade(game):
         if enemy_group_destination in enemy_icebergs:
             non_direct_enemy_groups.append(enemy_group)
         
-    # if the function gets to here, than that means enemy_group is either heading toward a neutral place, or enemy_group is going to defend their own iceberg, or any icebergs that an enemy_group is attacking are defended and safe from being taken. If there are more than 2 groups enroute, it will return false as well because we want to make sure that enemy_group isn't defending or taking too many neutral icebergs without us interfering.
+    # if the function gets to here, than that means enemy_group is either heading toward a neutral place, or enemy_group is going to defend their own iceberg, or any icebergs that an enemy_group is attacking are defended and safe from being taken. If there are more than 2 groups enroute, it will return false as well because we want to make sure that enemy_group isn't defending their own icebergs or attacking a neutral iceberg without interference.
     if len(non_direct_enemy_groups) > 2:
         return False
     return True
