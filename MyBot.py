@@ -9,6 +9,7 @@ from Ratings.rate_enemy_Icepital import *
 from Attack.attack import *
 from Ratings.rate_enemy_icebergs import *
 from Upgrade.upgrade import upgrade
+from Attack.attack_by_rating import *
 
 
 def do_turn(game):
@@ -39,8 +40,10 @@ def do_turn(game):
             send_able_defense(sending_iceberg, iceberg, )
 
     # Attacks icebergs we want
-    icebergs_to_be_attacked = rate_enemy_icebergs(game)
-    for iceberg in icebergs_to_be_attacked:
-        attack_iceberg(game, iceberg)
+    # The function attack_by_rating already includes the code below within it
+    attack_by_rating(game)
+    # icebergs_to_be_attacked = rate_enemy_icebergs(game)
+    # for iceberg in icebergs_to_be_attacked:
+    #     attack_iceberg(game, iceberg)
 
     upgrade(game)
