@@ -3,17 +3,21 @@ from penguin_game import *
 def attack_by_rating(game):
     icebergs_to_be_attacked = rate_enemy_icebergs(game)
     our_current_penguin_groups = game.get_my_penguin_groups()
+    print(icebergs_to_be_attacked)
+    if not icebergs_to_be_attacked:
+        return False
     for iceberg_to_attack in icebergs_to_be_attacked:
         for penguin_group in our_current_penguin_groups:
             if penguin_group.destination == iceberg_to_attack:
-                icebergs_to_be_attacked.remove(iceberg_to_attack)
-    if icebergs_to_be_attacked == []:
+                if iceberg_to_attack in icebergs_to_be_attacked:
+                    icebergs_to_be_attacked.remove(iceberg_to_attack)
+    if not icebergs_to_be_attacked:
         return False
     attack_count = 0
     for iceberg_to_attack in icebergs_to_be_attacked:
         # The iceberg that does the attack is chosen with the function attack()
         # and adds +1 to the attack count if the attack was successfully sent.
-        if attack_iceberg(iceberg_to_attack):
+        if attack_iceberg(game, iceberg_to_attack):
             attack_count += 1
     if attack_count > 0:
         return True
@@ -30,12 +34,12 @@ def attack_iceberg(game, iceberg_to_attack):
     # than the who_should_attack function will return a list and an attack is done from each iceberg
     if type(attacking_icebergs) == list:
         for iceberg in attacking_icebergs:
-            number_attack_iceberg = send_number(iceberg, iceberg_to_attack)
+            number_attack_iceberg = send_number(game, iceberg, iceberg_to_attack)
             if iceberg.can_send_penguins(iceberg_to_attack, number_attack_iceberg):
                 iceberg.send_penguins(iceberg_to_attack, number_attack_iceberg)
         return True
     else:
-        number_attack_iceberg = send_number(attacking_icebergs, iceberg_to_attack)
+        number_attack_iceberg = send_number(game, attacking_icebergs, iceberg_to_attack)
         if attacking_icebergs.can_send_penguins(iceberg_to_attack, number_attack_iceberg):
             attacking_icebergs.send_penguins(iceberg_to_attack, number_attack_iceberg)
         return True
@@ -44,15 +48,20 @@ def attack_iceberg(game, iceberg_to_attack):
 def attack_capital(game):
     attacking_icebergs = who_should_attack_capital(game)
     for iceberg in attacking_icebergs:
-        number_attack_iceberg = send_number(iceberg, game.get_enemy_icebergs()[0])
+        number_attack_iceberg = send_number(game, iceberg, game.get_enemy_icebergs()[0])
         if iceberg.can_send_penguins(attack_iceberg, number_attack_iceberg):
             iceberg.send_penguins(attack_iceberg, number_attack_iceberg)
 
 
 # Again, we might want to add more penguins to the attack because they'll defend as well
-def send_number(iceberg, attack_iceberg):
+def send_number(game, iceberg, attack_iceberg):
     number_attack_iceberg = attack_iceberg.penguin_amount
+    neutral_icebergs = game.get_neutral_icebergs()
+    if attack_iceberg in neutral_icebergs:
+        return number_attack_iceberg + 1
     distance = iceberg.get_turns_till_arrival(attack_iceberg)
+    print("Sending " +  str(number_attack_iceberg + (attack_iceberg.penguins_per_turn * distance) + 1))
+    print("attack_iceberg penguins per turn is " + str(attack_iceberg.penguins_per_turn))
     return number_attack_iceberg + (attack_iceberg.penguins_per_turn * distance) + 1
 
 
@@ -70,12 +79,11 @@ def who_should_attack_iceberg(game, attack_iceberg):
         distance = calculateDistance(iceberg, attack_iceberg)
         distances.append(distance)
         icebergs_by_distance.append([distance, iceberg])
-    icebergs_by_distance.sort()
+    icebergs_by_distance.sort(key=lambda x:x[0])
     for iceberg in icebergs_by_distance:
         distance = iceberg[0]
         if attack_iceberg.penguin_amount + (distance * attack_iceberg.penguins_per_turn) < iceberg[1].penguin_amount:
             return iceberg[1]
-    # Multiple icebergs of the same distance from enemy iceberg
     for distance in distances:
         if distances.count(distance) > 1:
             icebergs_to_attack = check_multiple_hits(distance, icebergs_by_distance, attack_iceberg)
@@ -125,17 +133,18 @@ def find_all_attacked_icebergs(game):
 # Checks for each group of enemy penguins if 1) They are attacking the Icepital,
 # 2) If the number of penguins in the group is less than the number of
 # penguins currently on the iceberg + the amount of penguins that will be added by the time they arrive + 1
-def check_if_C_safe(enemy_groups):
+def check_if_C_safe(game, enemy_groups):
     if enemy_groups == []:
         return True
+    my_capitals = game.get_my_icepital_icebergs()
     for enemy_group in enemy_groups:
-        if enemy_group.destination.is_icepital:
+        if enemy_group.destination in my_capitals:
             target = enemy_group.destination
             turns_till_arrival = enemy_group.turns_till_arrival
             additional_penguins = target.penguins_per_turn * turns_till_arrival
-            if enemy_group.penguin_amount < (target.penguin_amount + additional_penguins + 1):
-                return True
-    return False
+            if enemy_group.penguin_amount >= (target.penguin_amount + additional_penguins + 1):
+                return False
+    return True
 
 
 # First checks to see if the iceberg is even being attacked.
@@ -213,10 +222,17 @@ def rate_iceberg(iceberg, game):
 def rate_enemy_icebergs(game):
     # Returns list of icebergs that should be attacked
     icebergs_to_be_attacked = []
-    for iceberg in game.get_enemy_icebergs():
+    enemy_icepitals = game.get_enemy_icepital_icebergs()
+    enemy_icebergs = game.get_enemy_icebergs()
+    neutral_icebergs = game.get_neutral_icebergs()
+    potential_icebergs = enemy_icebergs + neutral_icebergs + enemy_icepitals
+    for iceberg in potential_icebergs:
         rating = rate_iceberg(iceberg, game)
-        if rating > 20:
+        if rating >= 6:
             icebergs_to_be_attacked.append(iceberg)
+        if rating < 6 and iceberg in enemy_icepitals:
+            icebergs_to_be_attacked.append(iceberg)
+    return icebergs_to_be_attacked
 
 
 
@@ -253,11 +269,15 @@ def rate_iceberg(iceberg, game):
     distance_from_home = iceberg.get_turns_till_arrival(game.get_my_icepital_icebergs()[0])
     distance_from_enemy = iceberg.get_turns_till_arrival(game.get_enemy_icepital_icebergs()[0])
     per_turn = iceberg.penguins_per_turn
+    if distance_from_home == 0:
+        return 30 / distance_from_enemy + per_turn
+    if distance_from_enemy == 0:
+        return 40 / distance_from_home + per_turn
 
     # the closer the iceberg to our base or theirs, the higher the rating.
     # Distance from our base is more important for defense so will contribute more to rating.
     # Plus take into consideration amount of penguins produced in that iceberg by turn.
-    return 20 / distance_from_home + 10 / distance_from_enemy + per_turn
+    return 40 / distance_from_home + 30 / distance_from_enemy + per_turn
 
 
 # Sort by rating
@@ -271,9 +291,9 @@ def rate_my_attacked_icebergs(attacked_icebergs, game):
             iceberg_rating = rate_iceberg(iceberg, game)
             if iceberg_rating > 20:
                 icebergs_to_be_defended.append([iceberg_rating, icebergs_to_be_defended])
-    sorted_distances = icebergs_to_be_defended.sort()
+    icebergs_to_be_defended.sort(key=lambda x:x[0])
     sorted_icebergs_to_be_defended = []
-    for sorted_distance in sorted_distances:
+    for sorted_distance in icebergs_to_be_defended:
         sorted_icebergs_to_be_defended.append(sorted_distance[1])
     return sorted_icebergs_to_be_defended
 
@@ -284,8 +304,8 @@ def rate_for_upgrade(game):
     icebergs_to_update = []
     for iceberg in game.get_my_icebergs():
 
-        distance_from_home = iceberg.get_turns_till_arrival(game.get_my_icepital_icebergs[0])
-        distance_from_enemy = iceberg.get_turns_till_arrival(game.get_enemy_icepital_icebergs[0])
+        distance_from_home = iceberg.get_turns_till_arrival(game.get_my_icepital_icebergs()[0])
+        distance_from_enemy = iceberg.get_turns_till_arrival(game.get_enemy_icepital_icebergs()[0])
         per_turn = iceberg.penguins_per_turn
 
         # prioritizes upgrading the closest icebergs to our capital or to enemy capital with the least per_turn first
@@ -300,8 +320,8 @@ def rate_for_upgrade(game):
 
     i = 0
     for iceberg in game.get_my_icebergs():
-        distance_from_home = iceberg.get_turns_till_arrival(game.get_my_icepital_icebergs[0])
-        distance_from_enemy = iceberg.get_turns_till_arrival(game.get_enemy_icepital_icebergs[0])
+        distance_from_home = iceberg.get_turns_till_arrival(game.get_my_icepital_icebergs()[0])
+        distance_from_enemy = iceberg.get_turns_till_arrival(game.get_enemy_icepital_icebergs()[0])
         per_turn = iceberg.penguins_per_turn
         if (distance_from_home < distance_from_enemy):
             rating = distance_from_home + per_turn
@@ -322,13 +342,13 @@ def should_upgrade(game):
     current_enemy_groups = game.get_enemy_penguin_groups()
     non_direct_enemy_groups = []
     my_icebergs = game.get_my_icebergs()
-    netural_icebergs = game.get_netural_icebergs()
+    netural_icebergs = game.get_neutral_icebergs()
     enemy_icebergs = game.get_enemy_icebergs()
     for enemy_group in current_enemy_groups:
         enemy_group_destination = enemy_group.destination
-        if enemy_group.destination.is_icepital and check_if_C_safe(current_enemy_groups) == False:
+        if enemy_group.destination.is_icepital and check_if_C_safe(game, current_enemy_groups) == False:
             return False
-        if enemy_group.destination in my_icebergs and check_if_safe_I(enemy_group_destination) == False:
+        if enemy_group.destination in my_icebergs and check_if_safe_I(game, enemy_group_destination) == False:
             return False
         if enemy_group_destination in netural_icebergs:
             non_direct_enemy_groups.append(enemy_group)
@@ -349,6 +369,7 @@ def upgrade(game):
         iceberg = rate_for_upgrade(game)
         if iceberg.upgrade_cost < iceberg.penguin_amount and iceberg.can_upgrade():
             iceberg.upgrade()
+            print("Iceberg upgraded")
 
 
 
@@ -366,12 +387,13 @@ def distance_sort_d(game, defended_iceberg):
             all_distances.append([distance, iceberg])
         if iceberg in game.get_my_icebergs():
             all_distances.append([distance, iceberg])
-    sorted_distances = all_distances.sort()
-    if sorted_distances:
+    all_distances.sort(key=lambda x:x[0])
+    if all_distances:
         sorted_icebergs = []
-        for sorted_distance in sorted_distances:
-            sorted_icebergs.append(sorted_distance[1])
+        for all_distance in all_distances:
+            sorted_icebergs.append(all_distance[1])
         return sorted_icebergs
+    return []
 
 
 # Function calculates the distance from the iceberg we want to attack from to the various options that we can
@@ -388,14 +410,28 @@ def distance_sort_a(game, iceberg_attack_from):
         if iceberg in game.get_neutral_icebergs():
             distance *= -1
             all_distances.append([distance, iceberg])
-    sorted_distances = all_distances.sort()
-    if sorted_distances:
+    all_distances.sort(key=lambda x:x[0])
+    if all_distances:
         sorted_icebergs = []
-        for sorted_distance in sorted_distances:
-            sorted_icebergs.append(sorted_distance[1])
+        for all_distance in all_distances:
+            sorted_icebergs.append(all_distance[1])
         return sorted_icebergs
+    return []
 
-
+def sort_our_icebergs_by_distance_from_enemy_capital(game):
+    all_distances = []
+    enemy_icepital = game.get_enemy_icepital_icebergs()[0]
+    all_our_icebergs = game.get_my_icebergs()
+    for iceberg in all_our_icebergs:
+        distance = iceberg.get_turns_till_arrival(enemy_icepital)
+        all_distances.append([distance, iceberg])
+    all_distances.sort(key=lambda x:x[0])
+    if all_distances:
+        sorted_icebergs = []
+        for all_distance in all_distances:
+            sorted_icebergs.append(all_distance[1])
+        return sorted_icebergs
+    return []
 # Returns list of enemy icebergs sorted from closest to farthest from enemy capital.
 def sort_enemy_icebergs_by_distance_from_enemy_capital(game):
     all_distances = []
@@ -405,45 +441,55 @@ def sort_enemy_icebergs_by_distance_from_enemy_capital(game):
     for iceberg in all_enemy_icebergs:
         distance = iceberg.get_turns_till_arrival(enemy_icepital)
         all_distances.append([distance, iceberg])
-    sorted_distances = all_distances.sort()
-    if sorted_distances:
+    all_distances.sort(key=lambda x:x[0])
+    if all_distances:
         sorted_icebergs = []
-        for sorted_distance in sorted_distances:
-            sorted_icebergs.append(sorted_distance[1])
+        for all_distance in all_distances:
+            sorted_icebergs.append(all_distance[1])
         return sorted_icebergs
+    return []
+    
+def check_who_should_send_to_capital():
+    return
+
 
 def do_turn(game):
-    our_capital = game.get_my_icepital_icebergs()[0]
-    enemy_capital = game.get_enemy_icepital_icebergs()[0]
-
-    # Sorts distances for all sides.
-    distances_from_our_capital = distance_sort_d(game, our_capital)
-    distances_from_enemy_capital = distance_sort_a(game, enemy_capital)
-    sorted_enemies_from_enemy_capital = sort_enemy_icebergs_by_distance_from_enemy_capital(game)
-
-    # Defends capital if needed
-    if not check_if_C_safe(game.get_enemy_penguin_groups()):
-        icebergs_to_send = check_who_should_send_to_capital()
-        for iceberg in icebergs_to_send:
-            send_able_defense(iceberg, our_capital, )
-
-    # Checks if we should attack capital and attacks.
-    capital_should_be_attacked = rate_enemy_C(game, distances_from_enemy_capital, sorted_enemies_from_enemy_capital)
-    if capital_should_be_attacked:
-        attack_capital(game)
-
-    # Defends icebergs needing defense
-    icebergs_needing_defense = rate_my_attacked_icebergs(find_all_attacked_icebergs(game), game)
-    for iceberg in icebergs_needing_defense:
-        icebergs_to_send_from = check_who_should_send_to_iceberg(iceberg)
-        for sending_iceberg in icebergs_to_send_from:
-            send_able_defense(sending_iceberg, iceberg)
-
-    # Attacks icebergs we want
-    # The function attack_by_rating already includes the code below within it
-    attack_by_rating(game)
-    # icebergs_to_be_attacked = rate_enemy_icebergs(game)
-    # for iceberg in icebergs_to_be_attacked:
-    #     attack_iceberg(game, iceberg)
-
-    upgrade(game)
+    if game.get_enemy_icepital_icebergs():
+        our_capital = game.get_my_icepital_icebergs()[0]
+        enemy_capital = game.get_enemy_icepital_icebergs()[0]
+        enemy_penguin_groups = game.get_enemy_penguin_groups()
+        for group in enemy_penguin_groups:
+            print(group.penguin_amount)
+        # Sorts distances for all sides.
+        # distances_from_our_capital = distance_sort_d(game, our_capital)
+        # distances_from_enemy_capital = distance_sort_a(game, enemy_capital)
+        sorted_friendlies_from_enemy_capital = sort_our_icebergs_by_distance_from_enemy_capital(game)
+        sorted_enemies_from_enemy_capital = sort_enemy_icebergs_by_distance_from_enemy_capital(game)
+    
+        # Defends capital if needed
+        if not check_if_C_safe(game, game.get_enemy_penguin_groups()):
+            icebergs_to_send = check_who_should_send_to_capital()
+            if icebergs_to_send:
+                for iceberg in icebergs_to_send:
+                    send_able_defense(iceberg, our_capital, )
+    
+        # Checks if we should attack capital and attacks.
+        capital_should_be_attacked = rate_enemy_C(game, sorted_friendlies_from_enemy_capital, sorted_enemies_from_enemy_capital)
+        if capital_should_be_attacked:
+            attack_capital(game)
+    
+        # Defends icebergs needing defense
+        icebergs_needing_defense = rate_my_attacked_icebergs(find_all_attacked_icebergs(game), game)
+        for iceberg in icebergs_needing_defense:
+            icebergs_to_send_from = check_who_should_send_to_iceberg(iceberg)
+            for sending_iceberg in icebergs_to_send_from:
+                send_able_defense(sending_iceberg, iceberg)
+    
+        # Attacks icebergs we want
+        # The function attack_by_rating already includes the code below within it
+        attack_by_rating(game)
+        # icebergs_to_be_attacked = rate_enemy_icebergs(game)
+        # for iceberg in icebergs_to_be_attacked:
+        #     attack_iceberg(game, iceberg)
+    
+        upgrade(game)
